@@ -1,3 +1,3 @@
-# Generating fake data for movie DB with Pandas and Faker
+# Faker usage example
 
-Example of filling a Postgres DB with fake data using Faker, Pandas and SQLAlchemy.
+Example of filling a PostgreSQL database with fake data using Faker, Pandas and SQLAlchemy.
