@@ -1,4 +1,5 @@
+*.ipynb_checkpoints
+.vscode
 env
 .env
-.vscode
 Postgres local.session.sql
