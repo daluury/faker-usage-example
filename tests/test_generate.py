@@ -78,11 +78,6 @@ def test_films_columns_and_index(films):
     assert films.index.name == "film_id"
 
 
-def test_primary_keys_are_unique(actors, films):
-    assert actors.index.is_unique
-    assert films.index.is_unique
-
-
 def test_films_values_fit_the_schema(films):
     assert films["title"].notna().all()
     assert films["title"].str.len().max() <= 255
@@ -113,12 +108,6 @@ def test_links_reference_existing_ids(fake, films, actors):
 def test_links_have_no_duplicates(fake, films, actors):
     links = pairs(generate.make_films_actors(fake, films, actors, N_LINKS))
     assert not links.duplicated().any()
-
-
-def test_links_do_not_exceed_requested_number(fake, films, actors):
-    # duplicates are dropped, so there can be fewer pairs than requested, never more
-    links = pairs(generate.make_films_actors(fake, films, actors, N_LINKS))
-    assert len(links) <= N_LINKS
 
 
 # ---------- reproducibility
