@@ -1,4 +1,7 @@
-"""Fake data generation. Pure functions: no DB, no global state."""
+"""Fake data generation.
+
+The functions use only their arguments: no database, no hidden state.
+"""
 
 import datetime
 

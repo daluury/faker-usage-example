@@ -91,7 +91,8 @@ def test_rating_in_range(films):
 
 
 def test_release_date_is_date(films):
-    # type(...) is, not isinstance — to avoid including subclasses of date
+    # exact type check: isinstance would also accept datetime and pandas
+    # Timestamp, because they are subclasses of date
     assert all(type(d) is datetime.date for d in films["release_date"])
 
 

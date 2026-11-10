@@ -52,9 +52,7 @@ def apply_schema(engine: Engine) -> None:
 def truncate_tables(engine: Engine) -> None:
     """Empty all three tables so a repeated run does not duplicate data."""
     with engine.begin() as conn:
-        conn.execute(
-            text("TRUNCATE actors, films, films_actors RESTART IDENTITY CASCADE")
-        )
+        conn.execute(text("TRUNCATE actors, films, films_actors"))
 
 
 def load(engine: Engine, tables: dict[str, pd.DataFrame]) -> None:
@@ -67,4 +65,4 @@ def load(engine: Engine, tables: dict[str, pd.DataFrame]) -> None:
     """
     with engine.begin() as conn:
         for table_name, frame in tables.items():
-            frame.to_sql(table_name, con=conn, if_exists="append", chunksize=100)
+            frame.to_sql(table_name, con=conn, if_exists="append")

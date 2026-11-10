@@ -35,6 +35,9 @@ def engine(monkeypatch):
     # load_dotenv() does not override variables that are already set,
     # so this value wins over .env
     monkeypatch.setenv("POSTGRES_DB", "movies_test")
+    # wait at most 3 seconds for the connection; by default the tests can
+    # hang for minutes when PostgreSQL is not running
+    monkeypatch.setenv("PGCONNECT_TIMEOUT", "3")
     engine = db.get_engine()
     try:
         with engine.connect():
@@ -143,8 +146,9 @@ def test_load_writes_all_rows(engine, tables):
 def test_load_puts_keys_into_id_columns(engine, tables):
     db.apply_schema(engine)
     db.load(engine, tables)
-    # the keys live in the DataFrame index: they must land in the id columns,
-    # not in a column called "index"
+    # The keys (actor_id, film_id) are stored in the DataFrame index. to_sql
+    # writes the index as a column with the index name. If the name was lost,
+    # the column would be called "index"; with index=False the key would be lost.
     assert column_names(engine, "actors") == {"actor_id", "first_name", "last_name"}
     assert column_names(engine, "films") == {
         "film_id",
@@ -160,10 +164,15 @@ def test_load_puts_keys_into_id_columns(engine, tables):
 def test_load_is_atomic_on_failure(engine, tables):
     """If films_actors is broken, actors and films must not stay half-loaded."""
     db.apply_schema(engine)
-    broken_links = pd.DataFrame({"film_id": [999], "actor_id": [999]})
+    # ids that are not in the loaded films and actors tables
+    missing_film = tables["films"].index.max() + 1
+    missing_actor = tables["actors"].index.max() + 1
+    broken_links = pd.DataFrame(
+        {"film_id": [missing_film], "actor_id": [missing_actor]}
+    )
     broken = {**tables, "films_actors": broken_links.set_index(["film_id", "actor_id"])}
 
-    # foreign key violation: film 999 does not exist. Depending on how load()
+    # foreign key violation: this film does not exist. Depending on how load()
     # writes the frames, the error is a SQLAlchemy IntegrityError or the same
     # error wrapped by pandas in its own DatabaseError
     with pytest.raises((IntegrityError, pd.errors.DatabaseError)):
