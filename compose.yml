@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      # used only on the first start, when the data folder is still empty
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # port 5433 on your computer (not 5432), so it does not clash with
+      # another PostgreSQL that may already run locally
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # named volume: the data stays after the container is removed;
+      # postgres:18 expects this path (without /data at the end)
+      - movies_pgdata:/var/lib/postgresql
+    healthcheck:
+      # shows "healthy" in `docker compose ps` when the database is ready
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  movies_pgdata:
