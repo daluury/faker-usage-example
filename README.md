@@ -51,11 +51,13 @@ You need Python 3.11 or newer and Docker.
    pip install -r requirements.txt
    ```
 
-2. Create the settings file and set your own password in it (the database takes the password on its first start; to change it later, delete the data with `docker compose down -v` first):
+2. Create the settings file:
 
    ```bash
    cp .env.example .env
    ```
+
+   Then open `.env` and set your own `POSTGRES_PASSWORD`. If port 5433 is busy on your computer, change `POSTGRES_PORT` too. The database takes the password on its first start. To change it later, run `docker compose down -v` first.
 
 3. Start PostgreSQL:
 
@@ -79,7 +81,7 @@ To look at the data (use the user and database name from your `.env`):
 docker compose exec db psql -U movies -d movies -c "SELECT * FROM films LIMIT 5;"
 ```
 
-After that, open `demo.ipynb`: it shows how the data is generated and runs example queries (it needs `requirements-dev.txt`).
+After that, open `demo.ipynb`: it shows how the data is generated and runs example queries. Use VS Code with the Jupyter extension (the kernel comes from `requirements-dev.txt`). Other notebook tools may need extra packages.
 
 To stop the database, run `docker compose down`. The data stays in a Docker volume; add `-v` to delete it too.
 
@@ -99,14 +101,21 @@ main.py           runs everything
 
 ```bash
 pip install -r requirements-dev.txt
-pytest
 ```
 
-Tests without a database always run. The database tests use a separate database `movies_test` and are skipped if PostgreSQL is not available. Create it once:
+The database tests use a separate database `movies_test`. Start PostgreSQL first (see Quick start), then create it once:
 
 ```bash
 docker compose exec db psql -U movies -d movies -c "CREATE DATABASE movies_test;"
 ```
+
+Run the tests:
+
+```bash
+pytest
+```
+
+Tests without a database always run. If some tests are reported as `skipped`, these are the database tests: check that PostgreSQL is running and `movies_test` exists.
 
 To run only one group: `pytest -m "not integration"` (no database) or `pytest -m integration` (database only).
 
@@ -117,7 +126,7 @@ To run only one group: `pytest -m "not integration"` (no database) or `pytest -m
 - **Ratings** are from 1.0 to 10.0 with one decimal, as in the `NUMERIC(3,1)` column.
 - **Release dates** are in a fixed range (1990-01-01 to 2026-10-31), not "until today", so the result does not depend on the day you run the code.
 - **One transaction for loading.** If one table fails to load, nothing is saved.
-- **Port 5433** on your computer, so it does not clash with another PostgreSQL on the default port 5432. Change `POSTGRES_PORT` in `.env` if you need another port.
+- **Port 5433** on your computer, so it does not clash with another PostgreSQL on the default port 5432.
 
 ## Useful links
 
