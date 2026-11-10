@@ -18,11 +18,16 @@ REQUIRED_ENV_VARS = [
     "POSTGRES_DB",
 ]
 
+# seconds to wait for a connection (without it, the program can hang for
+# minutes if PostgreSQL is not running)
+CONNECT_TIMEOUT = 3
+
 
 def get_engine() -> Engine:
     """Build a SQLAlchemy engine from POSTGRES_* environment variables.
 
-    It does not connect yet: the connection opens on the first query.
+    It does not connect yet: the connection opens on the first query and
+    fails after CONNECT_TIMEOUT seconds if PostgreSQL is not reachable.
     Raises RuntimeError if some of the variables are not set.
     """
     load_dotenv()
@@ -40,7 +45,7 @@ def get_engine() -> Engine:
         port=os.getenv("POSTGRES_PORT"),
         database=os.getenv("POSTGRES_DB"),
     )
-    return create_engine(url)
+    return create_engine(url, connect_args={"connect_timeout": CONNECT_TIMEOUT})
 
 
 def apply_schema(engine: Engine) -> None:

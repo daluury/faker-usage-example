@@ -35,9 +35,6 @@ def engine(monkeypatch):
     # load_dotenv() does not override variables that are already set,
     # so this value wins over .env
     monkeypatch.setenv("POSTGRES_DB", "movies_test")
-    # wait at most 3 seconds for the connection; by default the tests can
-    # hang for minutes when PostgreSQL is not running
-    monkeypatch.setenv("PGCONNECT_TIMEOUT", "3")
     engine = db.get_engine()
     try:
         with engine.connect():
