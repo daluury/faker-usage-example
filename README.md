@@ -45,7 +45,13 @@ The schema is inspired by [this Codewars task](https://www.codewars.com/kata/581
 
 You need Python 3.11 or newer and Docker.
 
-1. Install the dependencies in a virtual environment:
+1. Create a virtual environment and activate it:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+   Activate it with `.venv\Scripts\activate` on Windows or `source .venv/bin/activate` on Linux and macOS. Then install the dependencies:
 
    ```bash
    pip install -r requirements.txt
@@ -57,7 +63,7 @@ You need Python 3.11 or newer and Docker.
    cp .env.example .env
    ```
 
-   Then open `.env` and set your own `POSTGRES_PASSWORD`. If port 5433 is busy on your computer, change `POSTGRES_PORT` too. The database takes the password on its first start. To change it later, run `docker compose down -v` first.
+   In the Windows Command Prompt use `copy .env.example .env` (PowerShell accepts `cp`). Then open `.env` and set your own `POSTGRES_PASSWORD`. If port 5433 is busy on your computer, change `POSTGRES_PORT` too. The database takes the password on its first start. To change it later, run `docker compose down -v` first.
 
 3. Start PostgreSQL:
 
@@ -92,16 +98,20 @@ sql/schema.sql    table definitions
 src/db.py         connection, schema, loading
 src/generate.py   fake data: actors, films, film-actor links (no database code)
 tests/            pytest tests
-compose.yml       PostgreSQL in Docker
+compose.yaml      PostgreSQL in Docker
 demo.ipynb        data generation demo and example queries
 main.py           runs everything
 ```
 
 ## Tests
 
+In the same virtual environment, install the test dependencies:
+
 ```bash
 pip install -r requirements-dev.txt
 ```
+
+The tests read the database settings from `.env`, so create it first (Quick start, step 2). Without it the database tests fail with `Missing environment variables` instead of being skipped.
 
 The database tests use a separate database `movies_test`. Start PostgreSQL first (see Quick start), then create it once:
 
