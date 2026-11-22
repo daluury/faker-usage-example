@@ -1,6 +1,6 @@
 """Generate fake movies data and load it into PostgreSQL.
 
-Run from the repo root:  python main.py  (or: uv run python main.py)
+Run from the repo root:  python main.py
 """
 
 from src import db, generate
